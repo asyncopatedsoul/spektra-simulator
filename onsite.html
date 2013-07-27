@@ -1,0 +1,173 @@
+<html>
+<head>
+  <title>On-site Challenge</title>
+  <style>
+    input#vehicle-name {
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <!--
+  /*
+  Part 4: UI
+  1. Create a UI with a textbox and dropdown that let’s you type in a name and choose a
+  vehicle type to create
+  2. Display the instantiated vehicle in a list <ul> that shows the name
+  3. Create a button “info” next to each vehicle
+  */
+  -->
+  <h1>Create a vehicle:</h1>
+  Name: <input type="text" id="vehicle-name"/>
+  <select id="vehicle-type">
+    <option value="motorcycle">motorcycle</option>
+    <option value="car">car</option>
+  </select>
+  <button id="make-vehicle" onclick="addVehicle();">Create</button>
+  <hr>
+  <h1>Vehicle list:</h1>
+  <ul id="vehicles">
+
+  </ul>
+  <script>
+
+    // ROOT NAMESPACE
+
+    var Scopely = {};
+
+      Scopely.Abstract = {
+
+        Vehicle: function(n,s,w){
+
+          this.name = n ? n : '';
+          this.seats = s ? s : 0;
+          this.wheels = w ? w : 0;
+
+        } //end Vehicle
+
+      }; // end Abstract
+
+    // BASE CLASSES
+
+    Scopely.Abstract.Vehicle.prototype = {
+              info: function(){
+                var response = { seats: this.seats, wheels: this.wheels };
+                return response;
+              },
+              setName: function(n){
+                this.name = n;
+              },
+              getName: function(){
+                return this.name;
+              },
+              get seats(){
+                return this._seats;
+              },
+              set seats(s){
+                this._seats = s;
+              },
+              get wheels(){
+                return this._wheels;
+              },
+              set wheels(w) {
+                this._wheels = w;
+              }
+        };// end Vehicle
+   
+   /*
+    Part 2: Inheritance
+    1. Create a namespace called “Scopely.Instances”
+    2. Create a class “Car” inside “Scopely.Instances” which inherits from the “Vehicle” class
+    3. Create a class “Motorcycle” inside “Scopely.Instances” which inherits from the “Vehicle”
+    class
+    */
+
+    // SUB-CLASSES
+
+   Scopely.Instances = {
+    Car: function(n){
+      this.name = n ? n : '';
+    },
+    Motorcycle: function(n){
+      this.name = n ? n : '';
+    }
+   };
+
+   /*
+    Part 3: Functions
+    1. Write a function called “info” which alerts the type (car or motorycle), name, number of
+    seats and wheels that the car has.
+    a. Define a method “info” on the “Vehicle” class that returns the number of seats and
+    wheels, but not the type and not the name.
+    b. Define a method “info” on the subclasses that invokes the parent method and
+    then adds the type and name.
+    */
+
+    // DESCRIBE VEHICLE SUB-CLASS: CAR
+
+   Scopely.Instances.Car.prototype = new Scopely.Abstract.Vehicle('',4,4);
+   Scopely.Instances.Car.prototype.info = function(){
+    
+    var components = Scopely.Abstract.Vehicle.prototype.info.call(this);
+    var response = { name: this.name, type: "Car", seats: components.seats, wheels: components.wheels };
+
+    alert('the car, '+ this.name +', has '+ components.seats +' seats and '+ components.wheels +' wheels.');
+    return response;
+   }
+
+  // DESCRIBE VEHICLE SUB-CLASS: MOTORCYCLE
+
+   Scopely.Instances.Motorcycle.prototype = new Scopely.Abstract.Vehicle('',1,2);
+   Scopely.Instances.Motorcycle.prototype.info = function(){
+    
+    var components = Scopely.Abstract.Vehicle.prototype.info.call(this);
+    var response = { name: this.name, type: "Motorcycle", seats: components.seats, wheels: components.wheels };
+
+    alert('the motorcyle, '+ this.name +', has '+ components.seats +' seat and '+ components.wheels +' wheels.');
+    return response;
+   }
+
+  /*
+  Part 5: Binding
+
+  1. Write a global function called “attach” which will take in an object, an event as a string,
+  and a function. attach() should call the function on the object when that object’s event
+  gets fired.
+
+  a. e.g. implement function attach(obj, event, fn) { … }
+
+  2. Use the attach function to attach each vehicle instance to the “info” button’s onClick
+  event. That is, when onClick is fired, it should call your info() method on your object.
+  */
+
+  function attach( obj, e, fn ) {
+
+    obj.addEventListener(e, fn, false);
+
+  }
+
+  function addVehicle() {
+
+    var name = document.getElementById('vehicle-name').value;
+    var type = document.getElementById('vehicle-type').value;
+
+    if (name == '') { alert('Please name vehicle.'); return; }
+    
+    var newVehicle;
+    if (type === 'car') { newVehicle = new Scopely.Instances.Car(name); }
+    else if (type === 'motorcycle') { newVehicle = new Scopely.Instances.Motorcycle(name); }
+
+    var newVehicleEntry = document.createElement("li");
+    var newVehicleInfoButton = document.createElement("button");
+
+    newVehicleEntry.appendChild(newVehicleInfoButton);
+    newVehicleEntry.appendChild(document.createTextNode(name));
+    newVehicleInfoButton.appendChild(document.createTextNode('INFO'));
+
+    document.body.insertBefore(newVehicleEntry, document.getElementById("vehicle-list"));
+
+    attach(newVehicleEntry,'click', function(){ newVehicle.info(); });
+  }
+
+  </script>
+</body>
