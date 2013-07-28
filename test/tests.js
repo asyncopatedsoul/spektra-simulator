@@ -89,6 +89,25 @@ test( "test arena", function(){
   equal(a1.canvases.length,2,'master canvas count');
   equal(a1.canvases[1],c2,'master canvas membership');
 
-  
+
+});
+
+test( "text pixel proxy", function(){
+
+  var position = new Spektra.Components.Position(0,0);
+  var color = new Spektra.Components.Color(0,0,0);
+  var pixel = new Spektra.Components.Pixel(position,color);
+
+  var position2 = new Spektra.Components.Position(1,1); 
+  var color2 = new Spektra.Components.Color(1,1,1);
+  var proxy = new Spektra.Components.PixelProxy(position2,color);
+
+  console.log(proxy);
+  proxy.setProxy(pixel);
+  equal(proxy.proxy,pixel,'set proxy');
+
+  proxy.setColor(color2);
+  equal(proxy.color,color2,'set color');
+  equal(proxy.color,pixel.color,'pass color to proxy');
 
 });

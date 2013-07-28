@@ -92,6 +92,8 @@ Spektra.Components = {
 
       var p = 0;
 
+      var x = 0;
+
       console.log('canvas b '+ v2.location);
       //bottom-left corner
       console.log(v2.points[p]);
@@ -99,18 +101,22 @@ Spektra.Components = {
       // add points to column from top
       for (var y=0; y<c2.height; y++) {
 
-        column.push(c2.getPixel(0,y));
+        column.push(c2.getPixel(x,y));
 
       }
-      console.log(column);
+      //console.log(column);
 
       console.log('canvas a '+v1.location);
       //top-left corner
-
       console.log(v1.points[p]);
 
-      //x = width min, y = height min
-      
+      //for (var y=c1.height-1; y>=0; y--) {
+      for (var y=0; y<c1.height; y++) {
+
+        column.push(c1.getPixel(x,y));
+
+      }
+      console.log(column);
 
       
 
@@ -175,9 +181,10 @@ Spektra.Components = {
 
         if ( testX == x && testY == y)
           return this.pixels[i];
-        else 
-          return null;
+        
       }
+
+      return null;
 
     }
 
@@ -196,7 +203,7 @@ Spektra.Components = {
 
           var position = new Spektra.Components.Position(x,y);
           var color = new Spektra.Components.Color(0,0,0);
-          var pixel = new Spektra.Components.Pixel(position,color,this);
+          var pixel = new Spektra.Components.Pixel(position,color);
 
           this.addPixel(pixel);
 
@@ -225,11 +232,33 @@ Spektra.Components = {
 
   }, 
 
-  Pixel: function(position, color, canvas){
+  Pixel: function(position, color){
   
     this.position = position;
     this.color = color;
 
+  },
+
+  PixelProxy: function(position, color){
+
+    this.prototype = new Spektra.Components.Pixel();
+    this.position = position;
+    this.color = color;
+  
+    this.setProxy = function(pixel){
+      this.proxy = pixel;
+    }
+
+    this.passColorToProxy = function(){
+      this.proxy.color = this.color;
+    }
+
+    this.setColor = function(color){
+      this.color = color;
+      this.passColorToProxy(color);
+    }
+
+    
   },
 
   Position: function(x,y){
