@@ -34,24 +34,61 @@ test( "test canvas", function() {
 
 test( "test vertex", function() {
 
-  var canvas = new Spektra.Components.Canvas(3,6);
+  var c = new Spektra.Components.Canvas(3,6);
 
-  var v1 = new Spektra.Components.Vertex('top',canvas);
-  var v2 = new Spektra.Components.Vertex('right',canvas);
-  
-  console.log(v1);
-  console.log(v2);
+  console.log(c);
 
-  equal(v1.points.length,3);
-  equal(v2.points.length,6);
+  equal(c.vertices['top'].points.length,3,'horizontal vertex check');
+  equal(c.vertices['right'].points.length,6,'vertical vertex check');
 
   var c1 = new Spektra.Components.Canvas(2,2);
   var c2 = new Spektra.Components.Canvas(2,2);
 
   c1.vertices.top.pairWithVertex(c2.vertices.bottom);
 
-  equal(c1.vertices.top.pair.vertex,c2.vertices.bottom);
-  equal(c2.vertices.bottom.pair.vertex,c1.vertices.top);
+  equal(c1.vertices.top.pair.vertex,c2.vertices.bottom,'partner 1 check');
+  equal(c2.vertices.bottom.pair.vertex,c1.vertices.top,'partner 2 check');
 
 });
 
+test( "test node", function() {
+
+  var n1 = new Spektra.Components.Node();
+  var c1 = new Spektra.Components.Canvas(2,2);
+  var c2 = new Spektra.Components.Canvas(2,2);
+
+  n1.addCanvas(c1);
+  n1.addCanvas(c2);
+
+  console.log(n1.canvases);
+  equal(n1.canvases.length,2,'add canvas count check');
+
+  var n2 = new Spektra.Components.Node();
+  n2.addCanvases([c1,c2]);
+
+  equal(n2.canvases.length,2,'add multiple canvases count check');
+
+
+});
+
+test( "test arena", function(){
+
+  var a1 = new Spektra.Components.Arena();
+  var n1 = new Spektra.Components.Node();
+  var c1 = new Spektra.Components.Canvas(2,2);
+  var c2 = new Spektra.Components.Canvas(2,2);
+
+  n1.addCanvas(c1);
+  n1.addCanvas(c2);
+  a1.addNode(n1);
+
+  c1.vertices.top.pairWithVertex(c2.vertices.bottom);
+
+  a1.renderMasterCanvas();
+
+  equal(a1.canvases.length,2,'master canvas count');
+  equal(a1.canvases[1],c2,'master canvas membership');
+
+  
+
+});

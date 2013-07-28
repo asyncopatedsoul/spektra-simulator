@@ -54,13 +54,76 @@ Spektra.Components = {
 
     }
 
+    this.removeNode = function(node){
+
+
+
+    }
+
     this.renderMasterCanvas = function(){
 
       if (this.nodes.length > 0) {
 
+        this.nodes.forEach(function(node,index,nodes){
 
+          node.canvases.forEach(function(canvas,index,canvases){
+
+            this.canvases.push(canvas);
+
+          },this);
+
+        },this);
 
       }
+
+      //proceed through canvases
+      var c = 0;
+      var v = 'top';
+
+      var column = [];
+      
+      //c1.vertices.top.pairWithVertex(c2.vertices.bottom);
+      //detect vertex pairs from top and process clockwise
+
+      var c1 = this.canvases[c];
+      var v1 = c1.vertices[v];
+      var c2 = this.canvases[c].vertices[v].pair.canvas;
+      var v2 = this.canvases[c].vertices[v].pair.vertex;
+
+      var p = 0;
+
+      console.log('canvas b '+ v2.location);
+      //bottom-left corner
+      console.log(v2.points[p]);
+
+      // add points to column from top
+      for (var y=0; y<c2.height; y++) {
+
+        column.push(c2.getPixel(0,y));
+
+      }
+      console.log(column);
+
+      console.log('canvas a '+v1.location);
+      //top-left corner
+
+      console.log(v1.points[p]);
+
+      //x = width min, y = height min
+      
+
+      
+
+      //if horizontal
+      //proceed through vertex points
+
+      //for each point in bottom vertex, gather all points in column above
+
+      //for each point in top vertex, gather all points in column below
+
+      //combine points into column and set height for combined canvas
+
+      //return and always append to combined canvas
 
     }
 
@@ -68,11 +131,20 @@ Spektra.Components = {
 
 	Node: function() {
 
+    var self = this;
 		this.canvases = [];
 
     this.addCanvas = function(canvas){
 
       this.canvases.push(canvas);
+
+    }
+
+    this.addCanvases = function(canvasesArray){
+
+      canvasesArray.forEach(function(element,index,array){
+        this.addCanvas(element);
+      },this);
 
     }
 
@@ -101,11 +173,18 @@ Spektra.Components = {
 
         var testX = this.pixels[i].position.x, testY = this.pixels[i].position.y;
 
-        if ( textX == x && testY == y)
+        if ( testX == x && testY == y)
           return this.pixels[i];
         else 
           return null;
       }
+
+    }
+
+    this.addPixel = function(pixel){
+
+      this.pixels.push(pixel);
+      pixel.setParent(this);
 
     }
 
@@ -119,23 +198,30 @@ Spektra.Components = {
           var color = new Spektra.Components.Color(0,0,0);
           var pixel = new Spektra.Components.Pixel(position,color,this);
 
+          this.addPixel(pixel);
+
         }
 
       }
 
     }
 
-    this.calculateVertices = function(){
+    this.renderVertices = function(){
 
       this.vertices.top = new Spektra.Components.Vertex('top',this);
       this.vertices.right = new Spektra.Components.Vertex('right',this);
       this.vertices.bottom = new Spektra.Components.Vertex('bottom',this);
       this.vertices.left = new Spektra.Components.Vertex('left',this);
 
+      Object.getOwnPropertyNames(this.vertices).forEach(function(location){
+        this.vertices[location].setParent(this);
+        this.vertices[location].calculatePoints();
+      },this);
+
     }
 
     this.renderGrid();
-    this.calculateVertices();
+    this.renderVertices();
 
   }, 
 
@@ -143,8 +229,6 @@ Spektra.Components = {
   
     this.position = position;
     this.color = color;
-    this.setParent(canvas);
-    this.parent.pixels.push(this);
 
   },
 
@@ -163,7 +247,7 @@ Spektra.Components = {
 
   },
 
-  Vertex: function(border, canvas){
+  Vertex: function(border){
 
     this.points = [];
     this.location = border;
@@ -171,7 +255,6 @@ Spektra.Components = {
       canvas: null,
       vertex: null
     }
-    this.setParent(canvas);
 
     this.pairWithVertex = function(otherVertex){
       
@@ -230,7 +313,7 @@ Spektra.Components = {
 
     }
 
-    this.calculatePoints();
+    //this.calculatePoints();
 
   }
 }
