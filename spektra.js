@@ -112,13 +112,15 @@ Spektra.Components = {
 
     this.prototype = new Spektra.Components.Canvas();
     this.canvases = canvases;
+    this.height = 0;
+    this.width = 0;
     this.pixels = [];
     this.columns = [];
+
     //shadow pixels
     //pixels
 
-  
-      
+
 
       //if horizontal
       //proceed through vertex points
@@ -132,7 +134,8 @@ Spektra.Components = {
       //return and always append to combined canvas
 
       //this.canvases.forEach(canvas,index,canvases) {},this);
-  
+      
+      /*
       var c = 0;
       mergeAdjacentCanvases(canvases[0]);
 
@@ -146,6 +149,69 @@ Spektra.Components = {
         console.log(merge);
 
       }
+      */
+      this.calculateMaximumSurface = function(){
+
+        var maxWidth, maxHeight;
+
+        this.canvases.forEach(sumCanvasDimensions,this);
+
+        function sumCanvasDimensions(canvas,index,canvases){
+
+          maxWidth+=canvas.width;
+          maxHeight+=canvas.height;
+
+        }
+
+        this.height = maxHeight;
+        this.width = maxWidth;
+
+      }
+
+      this.renderGrid = function(){
+
+        for (var x = 0; x < this.width; x++) {
+
+          for (var y = 0; y < this.height; y++) {
+
+            var position = new Spektra.Components.Position(x,y);
+            var color = new Spektra.Components.Color(0,0,0);
+            var pixel = new Spektra.Components.PixelProxy(position,color);
+
+            this.addPixel(pixel);
+
+          }
+
+        }
+
+      }
+
+      this.placeChildCanvas = function(canvas,index,canvases){
+
+        var masterPointer = canvas.anchor;
+         
+        var masterXoffset = canvas.anchor.x;
+        var masterYoffset = canvas.anchor.y;
+
+        canvas.pixels.forEach(linkProxyPixel,this);
+
+        function linkProxyPixel(pixel,index,pixels){
+
+          var childX = pixel.position.x;
+          var childY = pixel.position.y;
+
+          var masterProxy = this.getPixel(childX-masterXoffset,childY-masterYoffset);
+
+          masterProxy.setProxy(pixel);
+
+        }
+
+      }
+
+      this.calculateMaximumSurface();
+      this.renderGrid();
+      this.canvases.forEach(placeChildCanvas,this);
+
 
 
   },
@@ -155,12 +221,14 @@ Spektra.Components = {
     this.width = w;
     this.height = h;
     this.pixels = [];
+    this.anchor = null;
     this.vertices = {
       top: null,
       right: null,
       bottom: null,
       left: null
     }
+
 
     this.getPixel = function(x,y){
 
@@ -213,6 +281,12 @@ Spektra.Components = {
         this.vertices[location].setParent(this);
         this.vertices[location].calculatePoints();
       },this);
+
+    }
+
+    this.setAnchor = function(position){
+
+      this.anchor = position;
 
     }
 
