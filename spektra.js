@@ -46,7 +46,7 @@ Spektra.Components = {
 
     this.nodes = [];
     this.canvases = [];
-    this.masterCanvas = null;
+    this.canvasMaster = null;
 
     this.addNode = function(node){
 
@@ -76,60 +76,7 @@ Spektra.Components = {
 
       }
 
-      //proceed through canvases
-      var c = 0;
-      var v = 'top';
-
-      var column = [];
-      
-      //c1.vertices.top.pairWithVertex(c2.vertices.bottom);
-      //detect vertex pairs from top and process clockwise
-
-      var c1 = this.canvases[c];
-      var v1 = c1.vertices[v];
-      var c2 = this.canvases[c].vertices[v].pair.canvas;
-      var v2 = this.canvases[c].vertices[v].pair.vertex;
-
-      var p = 0;
-
-      var x = 0;
-
-      console.log('canvas b '+ v2.location);
-      //bottom-left corner
-      console.log(v2.points[p]);
-
-      // add points to column from top
-      for (var y=0; y<c2.height; y++) {
-
-        column.push(c2.getPixel(x,y));
-
-      }
-      //console.log(column);
-
-      console.log('canvas a '+v1.location);
-      //top-left corner
-      console.log(v1.points[p]);
-
-      //for (var y=c1.height-1; y>=0; y--) {
-      for (var y=0; y<c1.height; y++) {
-
-        column.push(c1.getPixel(x,y));
-
-      }
-      console.log(column);
-
-      
-
-      //if horizontal
-      //proceed through vertex points
-
-      //for each point in bottom vertex, gather all points in column above
-
-      //for each point in top vertex, gather all points in column below
-
-      //combine points into column and set height for combined canvas
-
-      //return and always append to combined canvas
+      this.canvasMaster = new Spektra.Components.CanvasMaster(this.canvases);
 
     }
 
@@ -160,6 +107,48 @@ Spektra.Components = {
     }
 
 	},
+
+  CanvasMaster: function(canvases){
+
+    this.prototype = new Spektra.Components.Canvas();
+    this.canvases = canvases;
+    this.pixels = [];
+    this.columns = [];
+    //shadow pixels
+    //pixels
+
+  
+      
+
+      //if horizontal
+      //proceed through vertex points
+
+      //for each point in bottom vertex, gather all points in column above
+
+      //for each point in top vertex, gather all points in column below
+
+      //combine points into column and set height for combined canvas
+
+      //return and always append to combined canvas
+
+      //this.canvases.forEach(canvas,index,canvases) {},this);
+  
+      var c = 0;
+      mergeAdjacentCanvases(canvases[0]);
+
+      function mergeAdjacentCanvases(canvas){
+       
+        //assuming canvas has pair on top vertex
+        var v = 'top';
+        var merge = canvas.vertices[v].calculateCompositeProxyPixels();
+
+        console.log('composite');
+        console.log(merge);
+
+      }
+
+
+  },
 
   Canvas: function(w,h) {
 
@@ -285,16 +274,18 @@ Spektra.Components = {
       vertex: null
     }
 
-    this.pairWithVertex = function(otherVertex){
+    this.pairWithVertex = function(otherVertex, offset){
       
       this.pair = {
         canvas: otherVertex.parent,
-        vertex: otherVertex
+        vertex: otherVertex,
+        offset: offset
       }
 
       otherVertex.pair = {
         canvas: this.parent,
-        vertex: this
+        vertex: this,
+        offset: 0-offset
       }
 
     }
@@ -342,6 +333,85 @@ Spektra.Components = {
 
     }
 
+    this.calculateCompositeProxyPixels = function(){
+
+      var composite = {};
+
+      if (this.location == 'top' || this.location == 'bottom')
+        composite = this.calculateCompositeFromColumns();
+
+      if (this.location == 'left' || this.location == 'right')
+        composite = this.calculateCompositeFromRows();
+
+      return composite;
+
+    }
+
+    this.calculateCompositeFromRows = function(position){
+
+    }
+
+    this.calculateCompositeFromColumns = function(){
+
+
+      var compositeColumns = [];
+
+      //loop through all points in vertex
+
+      //assuming paired canvases are same size and left corners aligned
+      //if offset, apply to point index
+      //positive offset shifts otherCanvas to right
+      var pointIndex = 0;
+
+      for (var p = pointIndex; p<this.points.length; p++) {
+
+        var mergedColumn = [];
+        var otherCanvas = this.pair.canvas;
+        var otherVertex = this.pair.vertex;
+        var thisColumn = this.getPointsInColumn(this.points[pointIndex]);
+        var otherColumn = otherVertex.getPointsInColumn(this.points[pointIndex]);
+        
+        function mergeToColumn(position){
+          mergedColumn.push(position);
+        }
+
+        thisColumn.forEach(mergeToColumn,this);
+        otherColumn.forEach(mergeToColumn,this);
+
+        console.log('merged column');
+        console.log(mergedColumn);
+
+        compositeColumns.push(mergedColumn);
+
+      }
+      
+
+
+      return compositeColumns;
+
+    }
+
+    this.getPointsInColumn = function(position){
+
+      var column = [];
+      var x = position.x;
+
+      // add points to column from top
+      for (var y=0; y<this.parent.height; y++) {
+
+        column.push(this.parent.getPixel(x,y));
+
+      }
+
+      return column;
+
+    }
+
+    this.getPointsInRow = function(position){
+
+
+
+    }
     //this.calculatePoints();
 
   }

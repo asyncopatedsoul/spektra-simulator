@@ -44,7 +44,7 @@ test( "test vertex", function() {
   var c1 = new Spektra.Components.Canvas(2,2);
   var c2 = new Spektra.Components.Canvas(2,2);
 
-  c1.vertices.top.pairWithVertex(c2.vertices.bottom);
+  c1.vertices.top.pairWithVertex(c2.vertices.bottom,0);
 
   equal(c1.vertices.top.pair.vertex,c2.vertices.bottom,'partner 1 check');
   equal(c2.vertices.bottom.pair.vertex,c1.vertices.top,'partner 2 check');
@@ -82,7 +82,7 @@ test( "test arena", function(){
   n1.addCanvas(c2);
   a1.addNode(n1);
 
-  c1.vertices.top.pairWithVertex(c2.vertices.bottom);
+  c1.vertices.top.pairWithVertex(c2.vertices.bottom,0);
 
   a1.renderMasterCanvas();
 
