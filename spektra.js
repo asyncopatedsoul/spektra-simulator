@@ -24,11 +24,116 @@ var Spektra = {
 };
 
 Spektra.Composer = function(){
-	
 
+
+	
 };
 
+Spektra.Sampler = function(){
+
+
+
+}
+
+Spektra.Complier = function(){
+
+
+
+}
+
+Spektra.Workbench = {
+
+  ColorWheel: function(){
+
+
+
+  },
+
+  Scrubber: function(){
+
+
+
+  },
+
+  Camera: function(){
+
+
+
+  },
+
+  TextEditor: function(){
+
+
+
+  },
+
+  Selector: function(){
+
+
+
+  },
+
+  Player: function(){
+
+
+
+  },
+
+
+
+}
+
+Spektra.Instrument = {
+
+
+  
+}
+
+Spektra.Visual = {
+
+  Frame: function(){
+
+    this.data = null;
+    this.pixels = [];
+
+
+  },
+
+  Palette: function(){
+
+
+
+  },
+
+  Cuepoint: function(){
+
+
+
+  },
+
+  Transition: function(){
+
+
+
+  },
+
+  Layer: function(){
+
+
+
+  },
+
+  Gesture: function(){
+
+
+
+  }, 
+
+}
+
 Spektra.Network = {
+
+
   
   Server: function() {
 
@@ -117,102 +222,74 @@ Spektra.Components = {
     this.pixels = [];
     this.columns = [];
 
-    //shadow pixels
-    //pixels
 
+    function mergeAdjacentCanvases(canvas,loation){
 
+      var merge = canvas.vertices[location].calculateCompositeProxyPixels();
 
-      //if horizontal
-      //proceed through vertex points
+    }
 
-      //for each point in bottom vertex, gather all points in column above
+    this.calculateMaximumSurface = function(){
 
-      //for each point in top vertex, gather all points in column below
+      var maxWidth, maxHeight;
 
-      //combine points into column and set height for combined canvas
+      this.canvases.forEach(sumCanvasDimensions,this);
 
-      //return and always append to combined canvas
+      function sumCanvasDimensions(canvas,index,canvases){
 
-      //this.canvases.forEach(canvas,index,canvases) {},this);
-      
-      /*
-      var c = 0;
-      mergeAdjacentCanvases(canvases[0]);
+        maxWidth+=canvas.width;
+        maxHeight+=canvas.height;
 
-      function mergeAdjacentCanvases(canvas){
+      }
+
+      this.height = maxHeight;
+      this.width = maxWidth;
+
+    }
+
+    this.renderGrid = function(){
+
+      for (var x = 0; x < this.width; x++) {
+
+        for (var y = 0; y < this.height; y++) {
+
+          var position = new Spektra.Components.Position(x,y);
+          var color = new Spektra.Components.Color(0,0,0);
+          var pixel = new Spektra.Components.PixelProxy(position,color);
+
+          this.addPixel(pixel);
+
+        }
+
+      }
+
+    }
+
+    this.placeChildCanvas = function(canvas,index,canvases){
+
+      var masterPointer = canvas.anchor;
        
-        //assuming canvas has pair on top vertex
-        var v = 'top';
-        var merge = canvas.vertices[v].calculateCompositeProxyPixels();
+      var masterXoffset = canvas.anchor.x;
+      var masterYoffset = canvas.anchor.y;
 
-        console.log('composite');
-        console.log(merge);
+      canvas.pixels.forEach(linkProxyPixel,this);
 
-      }
-      */
-      this.calculateMaximumSurface = function(){
+      function linkProxyPixel(pixel,index,pixels){
 
-        var maxWidth, maxHeight;
+        var childX = pixel.position.x;
+        var childY = pixel.position.y;
 
-        this.canvases.forEach(sumCanvasDimensions,this);
+        var masterProxy = this.getPixel(childX-masterXoffset,childY-masterYoffset);
 
-        function sumCanvasDimensions(canvas,index,canvases){
-
-          maxWidth+=canvas.width;
-          maxHeight+=canvas.height;
-
-        }
-
-        this.height = maxHeight;
-        this.width = maxWidth;
+        masterProxy.setProxy(pixel);
 
       }
 
-      this.renderGrid = function(){
+    }
 
-        for (var x = 0; x < this.width; x++) {
-
-          for (var y = 0; y < this.height; y++) {
-
-            var position = new Spektra.Components.Position(x,y);
-            var color = new Spektra.Components.Color(0,0,0);
-            var pixel = new Spektra.Components.PixelProxy(position,color);
-
-            this.addPixel(pixel);
-
-          }
-
-        }
-
-      }
-
-      this.placeChildCanvas = function(canvas,index,canvases){
-
-        var masterPointer = canvas.anchor;
-         
-        var masterXoffset = canvas.anchor.x;
-        var masterYoffset = canvas.anchor.y;
-
-        canvas.pixels.forEach(linkProxyPixel,this);
-
-        function linkProxyPixel(pixel,index,pixels){
-
-          var childX = pixel.position.x;
-          var childY = pixel.position.y;
-
-          var masterProxy = this.getPixel(childX-masterXoffset,childY-masterYoffset);
-
-          masterProxy.setProxy(pixel);
-
-        }
-
-      }
-
-      this.calculateMaximumSurface();
-      this.renderGrid();
-      this.canvases.forEach(placeChildCanvas,this);
-
-
+    this.calculateMaximumSurface();
+    this.renderGrid();
+    this.canvases.forEach(placeChildCanvas,this);
 
   },
 
